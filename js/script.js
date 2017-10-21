@@ -18,7 +18,7 @@ function permission(){
         // video.onloadedmetadata = function(e) {
            // Do something with the video here.
         // };
-     }, 
+     },
 
      // errorCallback
      function(err) {
@@ -31,7 +31,7 @@ function permission(){
 if (!('webkitSpeechRecognition' in window)) {
   console.log("need webkitSpeechRecognition");
   //upgrade();
-} 
+}
 else {
   console.log("has webkitSpeechRecognition");
   permission();
@@ -50,6 +50,13 @@ else {
     console.log("in onstart");
     start_time = (new Date()).getTime();
     recognizing = true;
+    var x = setInterval(function(){
+      // recognition.stop();
+      recognition.stop();
+      console.log("end onstart");
+      clearInterval(x);
+    },5000);
+
   }
   recognition.onresult = function(event) {
       console.log("in onresult");
