@@ -6,18 +6,12 @@ function permission(){
   navigator.getUserMedia (
      // constraints
      {
-        // video: true,
         audio: true
      },
 
      // successCallback
      function(localMediaStream) {
        console.log("gain permission");
-        // var video = document.querySelector('video');
-        // video.src = window.URL.createObjectURL(localMediaStream);
-        // video.onloadedmetadata = function(e) {
-           // Do something with the video here.
-        // };
      },
 
      // errorCallback
@@ -29,10 +23,14 @@ function permission(){
   );
 }
 
-ask_question();
+var loop_question = setInterval(function(){
+    var question = ask_question();
+    var correct = speech_recognition(question);
+  }, 5000);
+
 // speech_recognition(temp);
 
-function speech_recognition(answer){
+function speech_recognition(question){
   if (!('webkitSpeechRecognition' in window)) {
     console.log("need webkitSpeechRecognition");
     //upgrade();
@@ -45,12 +43,7 @@ function speech_recognition(answer){
     //When user stop talking, recognition will end
     recognition.continuous = false;
     recognition.interimResults = true;
-    // final_span.innerHTML = '';
-    // interim_span.innerHTML = '';
-    // start_img.src = 'mic-slash.gif';
-    // showInfo('info_allow');
-    // showButtons('none');
-    // start_timestamp = event.timeStamp;
+
     recognition.onstart = function() {
       console.log("in onstart");
       start_time = (new Date()).getTime();
@@ -67,7 +60,7 @@ function speech_recognition(answer){
         msg = ''
         if((new Date).getTime() - start_time > 5000){
           console.log("expire");
-          return;
+          return '';
         }
         for (var i = event.resultIndex; i < event.results.length; i++){
             if(event.results[i].isFinal){
@@ -77,18 +70,13 @@ function speech_recognition(answer){
         console.log("msg = " + msg);
          if(msg != ''){
             document.getElementById('msg').innerHTML = msg;
-        //   if(msg.toUpperCase() == "PLUS"){
-        //     console.log("+");
-        //   }
-        //   else if(msg.toUpperCase() == "MINUS"){
-        //     console.log("-");
-        //   }
-            if (msg == answer){
-              console.log("Correct msg " + msg);
-            }
-            else{
-              console.log("Incorrect msg");
-            }
+            correct = check_answer(question);
+            // if(correct){
+            //   return true;
+            // }
+            // else{
+            //   return false;
+            // }
          }
     }
 
@@ -108,11 +96,6 @@ function speech_recognition(answer){
       }
       if (event.error == 'not-allowed') {
         console.log("not-allowed");
-        // if (event.timeStamp - start_timestamp < 100) {
-        //   showInfo('info_blocked');
-        // } else {
-        //   showInfo('info_denied');
-        // }
         ignore_onend = true;
       }
     }
@@ -129,18 +112,24 @@ function speech_recognition(answer){
     }
     recognition.start();
   }
+  while(!correct){
+
+  }
+  return correct;
+}
+
+function check_answer(result){
+    if (msg == result){
+      console.log("Correct msg " + msg);
+      return true;
+    }
+    else{
+      console.log("Incorrect msg");
+      return false;
+    }
 }
 
 function ask_question(){
-  // Start button
-  // if (recognizing) {
-  //   recognition.stop();
-  //   return;
-  // }
-  // final_transcript = '';
-  // recognition.lang = "en-US";
-  // recognition.start();
-  // ignore_onend = false;
   var first = Math.floor(Math.random() * 10);
   var second = Math.floor(Math.random() * 10);
   var result = first + second;
@@ -150,13 +139,7 @@ function ask_question(){
   speech.text = string_question;
 
   console.log(speech);
-  speech.onend = function(){
-    console.log("speech end");
-    speech_recognition(result);
-  }
-  // speech.onerror = function(){
-  //   console.log("speech error");
-  // }
 
   window.speechSynthesis.speak(speech);
+  return result;
 }
