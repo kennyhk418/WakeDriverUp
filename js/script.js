@@ -2,6 +2,7 @@ var recognizing = false;
 var ignore_onend;
 var msg = '';
 var start_time;
+var freq = 10;
 
 /* function name: askPermission */
 function askPermission(){
@@ -23,10 +24,21 @@ function askPermission(){
   );
 }
 
+function change_freq(){
+  s = document.getElementById("freq");
+  freq = s.options[s.selectedIndex].value;
+  console.log(freq);
+  clearInterval(loop_question);
+  loop_question = setInterval(function(){
+    var question = ask_question();
+    var correct = speech_recognition(question);
+  }, freq * 60 * 1000);
+}
+
 var loop_question = setInterval(function(){
   var question = ask_question();
   var correct = speech_recognition(question);
-}, 10000);
+}, freq * 60 * 1000);
 
 /* funciton name: speech_recognition
    get the response from the user
